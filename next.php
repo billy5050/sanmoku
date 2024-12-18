@@ -24,12 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->exec("DELETE FROM cpu");
             
             // リセット後に `index.php` へリダイレクト
-            header("Location: imdex.php");
+            header("Location: index.php");
             exit; // ここでスクリプトの実行を停止
         } catch (PDOException $e) {
             echo "データベースエラー: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
         }
-        // リセット後の処理が必要であればここに記述
         exit; // リセット処理の後に通常の処理を続けない
     }
     // 通常の送信処理
@@ -43,46 +42,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     try {
         $pdo = getPdoConnection();
-        $index = 0;
-        // データベースに追加
+//         $index = 0;
+        // プレーヤーの行動をデータベースに追加
         $sql = "INSERT INTO test (place, process, time) VALUES (:place, :process, NOW())";
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':place', $place, PDO::PARAM_STR);
         $stmt->bindParam(':process', $process, PDO::PARAM_STR);
         $stmt->execute();
-        //現在の状況を取得
+        //プレーヤーの行動を全て取得
         $stmtMy = $pdo->query("SELECT * FROM test ORDER BY time DESC;");
         $turns = $stmtMy->fetchAll(PDO::FETCH_ASSOC);
+        //最新情報を取得
         $place = $turns[0]["place"];
         $process = $turns[0]["process"];
+        //cpuの行動を全て取得
         $stmtCpu = $pdo->query("SELECT * FROM cpu;");
         $cpu = $stmtCpu->fetchAll(PDO::FETCH_ASSOC);
-        // ランダム結果が今までの場所と重複していたら、抽選しなおす（CPUの操作）
-//         $ram = array_rand($grid, 1);
-//         foreach ($turns as $index => $turn) {
-//             foreach ($cpu as $index => $cp) {
-//                 while (in_array($grid[$ram], (array)$turn["place"]) || in_array($grid[$ram], (array)$cp["place"]) || $grid[$ram] == $place) {
-//                     $ram = array_rand($grid, 1);
-//                 }
-//             }
-//         }
-        $winSelf = array_column($turns, 'place');
-        $windCpu = array_column($cpu, 'place');
         
+        //今までの行動を配列に格納
+        $winSelf = array_column($turns, 'place');
         //プレーヤーの勝利判定
-        if (in_array("03", $winSelf) && in_array("04", $winSelf) && in_array("05", $winSelf) || 
-            in_array("03", $winSelf) && in_array("13", $winSelf) && in_array("23", $winSelf) || 
-            in_array("03", $winSelf) && in_array("14", $winSelf) && in_array("25", $winSelf) ||
-            in_array("13", $winSelf) && in_array("14", $winSelf) && in_array("15", $winSelf) || 
-            in_array("23", $winSelf) && in_array("24", $winSelf) && in_array("25", $winSelf) || 
-            in_array("05", $winSelf) && in_array("14", $winSelf) && in_array("23", $winSelf) || 
-            in_array("04", $winSelf) && in_array("14", $winSelf) && in_array("24", $winSelf) ||
-            in_array("05", $winSelf) && in_array("15", $winSelf) && in_array("25", $winSelf))
-        {
-            // リセット後に `index.php` へリダイレクト
-            header("Location: result.php");
-            exit; // ここでスクリプトの実行を停止
-        }
+        winF($winSelf, "win");
+        
         // ランダム結果が今までの場所と重複していたら、抽選しなおす（CPUの操作）
         $usedPlaces = array_merge(
             array_column($turns, 'place'),
@@ -92,37 +73,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ram = array_rand($grid, 1); // ランダムな値を生成
         } while (in_array($grid[$ram], $usedPlaces));
         
+        //cpuの行動をデータベースから取得
         $sql2 = "INSERT INTO cpu (place, time) VALUES (:place, NOW())";
         $stmt2 = $pdo->prepare($sql2);
         $stmt2->bindParam(':place', $grid[$ram], PDO::PARAM_STR);
         $stmt2->execute();
         $stmtCpu = $pdo->query("SELECT * FROM cpu;");
         $cpu = $stmtCpu->fetchAll(PDO::FETCH_ASSOC);
-        
-        //CPUの処理判定
-        if (in_array("03", $windCpu) && in_array("04", $windCpu) && in_array("05", $windCpu) ||
-            in_array("03", $windCpu) && in_array("13", $windCpu) && in_array("23", $windCpu) ||
-            in_array("03", $windCpu) && in_array("14", $windCpu) && in_array("25", $windCpu) ||
-            in_array("13", $windCpu) && in_array("14", $windCpu) && in_array("15", $windCpu) ||
-            in_array("23", $windCpu) && in_array("24", $windCpu) && in_array("25", $windCpu) ||
-            in_array("05", $windCpu) && in_array("14", $windCpu) && in_array("23", $windCpu) ||
-            in_array("04", $windCpu) && in_array("14", $windCpu) && in_array("24", $windCpu) ||
-            in_array("05", $windCpu) && in_array("15", $windCpu) && in_array("25", $windCpu))
-        {
-            // リセット後に `index.php` へリダイレクト
-            header("Location: result2.php");
-            exit; // ここでスクリプトの実行を停止
-        }
+        $winCpu = array_column($cpu, 'place');
+        //CPU勝利判定
+        winF($winCpu, "lose");
+
     } catch (PDOException $e) {
         echo "データベースエラー: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
     }
 }
-// try {
-//     $stmtMy = $pdo->query("SELECT * FROM test;");
-//     $turns = $stmtMy->fetchAll(PDO::FETCH_ASSOC); // 結果を取得
-// } catch (Exception $e) {
-//     echo "手順の取得に失敗しました。";
-// }
+
 //初回のcpuデータ取得
 try {
     $stmtCpu = $pdo->query("SELECT * FROM cpu;");
@@ -131,13 +97,32 @@ try {
     echo "手順の取得に失敗しました。";
 }
 
+//左の文字列を指定の数取得
 function left($str, $num, $encoding = "UTF-8"){
     return mb_substr($str, 0, $num, $encoding);
 }
+
+//右の文字列を指定の数取得
 function right($str, $num, $encoding = "UTF-8"){
     return mb_substr($str, $num * (-1), $num, $encoding);
 }
 
+//勝利判定
+function winF($win, $resultValue) {
+    if (in_array("03", $win) && in_array("04", $win) && in_array("05", $win) ||
+        in_array("03", $win) && in_array("13", $win) && in_array("23", $win) ||
+        in_array("03", $win) && in_array("14", $win) && in_array("25", $win) ||
+        in_array("13", $win) && in_array("14", $win) && in_array("15", $win) ||
+        in_array("23", $win) && in_array("24", $win) && in_array("25", $win) ||
+        in_array("05", $win) && in_array("14", $win) && in_array("23", $win) ||
+        in_array("04", $win) && in_array("14", $win) && in_array("24", $win) ||
+        in_array("05", $win) && in_array("15", $win) && in_array("25", $win))
+    {
+        // 勝敗の結果をクエリパラメータに付けて遷移
+        header("Location: result.php" . '?result=' . $resultValue);
+        exit; // ここでスクリプトの実行を停止
+    }
+}
 ?>
 <!doctype html>
 <html lang="en">
