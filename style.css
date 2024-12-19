@@ -7,7 +7,57 @@ body {
     margin: 0;
     padding: 0;
 }
+.stats-header {
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    border-bottom: 2px solid #dee2e6;
+    text-align: center;
+}
 
+.stats-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    width: 150px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+    font-size: 2em;
+    margin-bottom: 10px;
+    color: #007bff;
+}
+
+.stat-info {
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin: 0;
+}
+
+.stat-value {
+    font-size: 1.5em;
+    color: #212529;
+    font-weight: bold;
+    margin: 5px 0 0;
+}
 /* ゲームエリアを中央に配置 */
 form {
     display: inline-block;
@@ -18,16 +68,30 @@ form {
 table {
     border-collapse: collapse;
     margin: 0 auto;
+    width: 350px;
+    height: 350px;
     background-color: #ffffff;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 td {
-    width: 100px;
-    height: 100px;
-    border: 1px solid #ddd;
-    text-align: center;
-    vertical-align: middle;
+    position: relative;
+    background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+td:hover {
+    background-color: #f0f8ff;
+}
+
+td:after {
+    content: attr(data-content);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5em;
 }
 
 /* セレクトボックス */
@@ -73,4 +137,69 @@ button[name="reset"] {
 
 button[name="reset"]:hover {
     background-color: #cc0000;
+}
+.stats-header {
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    border-bottom: 2px solid #dee2e6;
+    text-align: center;
+}
+
+.stats-container {
+    display: flex; /* 横並びにする */
+    justify-content: center; /* 要素を中央揃え */
+    gap: 20px; /* 要素間の余白 */
+    flex-wrap: wrap; /* 横幅が狭い場合に折り返し */
+}
+
+.stat-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    width: 150px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+    font-size: 2em;
+    margin-bottom: 10px;
+    color: #007bff;
+}
+
+.stat-info {
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin: 0;
+}
+
+.stat-value {
+    font-size: 1.5em;
+    color: #212529;
+    font-weight: bold;
+    margin: 5px 0 0;
+}
+
+.message {
+    font-size: 2em;
+    margin-top: 10px;
+}
+.win {
+    color: green;
+}
+.lose {
+    color: red;
+}
+.draw {
+    color: orange;
 }
