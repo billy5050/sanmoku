@@ -6,7 +6,7 @@ require_once 'db_connect.php';
 <head> 
 	<meta charset="UTF-8" />
 	<title>Document</title>
-    <link rel="stylesheet" href="style.css" type="text/css">
+    <link rel="stylesheet" href="../css/style.css" type="text/css">
 </head>
     <body>
         <header class="stats-header">

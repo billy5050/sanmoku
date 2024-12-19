@@ -35,7 +35,7 @@ $randomAdvice = $advice[array_rand($advice)];
 <head>
     <meta charset="UTF-8">
     <title>ゲーム結果</title>
-    <link rel="stylesheet" href="style.css" type="text/css">
+    <link rel="stylesheet" href="../css/style.css" type="text/css">
     <style>
         body {
             background-color: #f0f8ff;
